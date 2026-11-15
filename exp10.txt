@@ -1,0 +1,47 @@
+import pandas as pd
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+import matplotlib.pyplot as plt
+
+# 1. Read the Digits dataset from CSV
+digits = pd.read_csv(r"digits.csv")
+
+# Separate features and labels
+X = digits.drop('label', axis=1)
+print(X.shape)
+
+# 2. Experiment with different numbers of clusters
+k_values = range(2, 15)
+inertia_values = []
+silhouette_values = []
+
+for k in k_values:
+    # Create K-Means model
+    kmeansmodel = KMeans(n_clusters=k, random_state=42).fit(X)
+    # Get cluster labels
+    labels = kmeansmodel.labels_
+    # Calculate inertia
+    inertia = kmeansmodel.inertia_
+    inertia_values.append(inertia)
+    # Calculate silhouette score
+    silhouette = silhouette_score(X, labels)
+    silhouette_values.append(silhouette)
+
+    print(f"K={k}")
+    print(f"Inertia = {inertia:.2f}")
+    print(f"Silhouette Score = {silhouette:.2f}")
+    print()
+
+# 3. Plot Elbow Curve
+plt.plot(k_values, inertia_values, marker='*')
+plt.xlabel("Number of Clusters (K)")
+plt.ylabel("Inertia")
+plt.title("Inertia plot")
+plt.show()
+
+# 4. Plot Silhouette Scores
+plt.plot(k_values, silhouette_values, marker='+')
+plt.xlabel("Number of Clusters (K)")
+plt.ylabel("Silhouette Score")
+plt.title("Silhouette Score for Different K")
+plt.show()

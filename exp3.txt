@@ -1,0 +1,75 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import (accuracy_score, precision_score, recall_score,
+                             f1_score, classification_report, confusion_matrix)
+
+# Load Data
+df = pd.read_csv(r"pima-indians-diabetes.csv")
+
+# printing the shape
+print(df.shape)
+
+# Features and target
+X = df.drop("Outcome", axis=1)
+y = df["Outcome"]
+
+# Split the data
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,
+                                                    random_state=42)
+
+# Without Scaling
+model_raw = LogisticRegression(max_iter=500).fit(X_train, y_train)
+y_pred = model_raw.predict(X_test)
+
+print("--- Without Scaling ---")
+print("Confusion matrix :", confusion_matrix(y_test, y_pred))
+print("Accuracy :", accuracy_score(y_test, y_pred))
+print("Precision:", precision_score(y_test, y_pred))
+print("Recall :", recall_score(y_test, y_pred))
+print("F1-score :", f1_score(y_test, y_pred))
+
+print("\nClassification Report")
+print(classification_report(y_test, y_pred))
+
+# With Scaling
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# Train model
+model = LogisticRegression(max_iter=1000)
+model.fit(X_train_scaled, y_train)
+
+# Prediction
+scaled_pred = model.predict(X_test_scaled)
+
+print("--- With Scaling ---")
+print("WITH FEATURE SCALING")
+print("Confusion matrix :", confusion_matrix(y_test, scaled_pred))
+print("Accuracy :", accuracy_score(y_test, scaled_pred))
+print("Precision:", precision_score(y_test, scaled_pred))
+print("Recall :", recall_score(y_test, scaled_pred))
+print("F1-score :", f1_score(y_test, scaled_pred))
+
+print("\nClassification Report")
+print(classification_report(y_test, scaled_pred))
+
+comparison = pd.DataFrame({
+    "Metric": ["Accuracy", "Precision", "Recall", "F1-score"],
+    "Without Scaling": [
+        accuracy_score(y_test, y_pred),
+        precision_score(y_test, y_pred),
+        recall_score(y_test, y_pred),
+        f1_score(y_test, y_pred)
+    ],
+    "With Scaling": [
+        accuracy_score(y_test, scaled_pred),
+        precision_score(y_test, scaled_pred),
+        recall_score(y_test, scaled_pred),
+        f1_score(y_test, scaled_pred)
+    ]
+})
+
+print(comparison)
